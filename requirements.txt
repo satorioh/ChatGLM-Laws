@@ -8,3 +8,5 @@ unstructured[local-inference]
 layoutparser[layoutmodels,tesseract]
 nltk
 beautifulsoup4
+langchain
+sentence_transformers

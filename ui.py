@@ -20,12 +20,12 @@ st.set_page_config(
 @st.cache_resource
 def get_model():
     tokenizer = AutoTokenizer.from_pretrained(
-        "silver/chatglm-6b-int4-slim", trust_remote_code=True)
+        "models/chatglm-6b-int4", trust_remote_code=True)
     model = AutoModel.from_pretrained(
-        "silver/chatglm-6b-int4-slim", trust_remote_code=True).half().cuda()
+        "models/chatglm-6b-int4", trust_remote_code=True).half().cuda()
     model = model.eval()
     embeddings = HuggingFaceEmbeddings(
-        model_name="GanymedeNil/text2vec-large-chinese",)
+        model_name="embeddings/text2vec-large-chinese",)
     embeddings.client = sentence_transformers.SentenceTransformer(
         embeddings.model_name, device="cuda")
     return tokenizer, model, embeddings
