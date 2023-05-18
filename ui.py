@@ -38,8 +38,9 @@ def get_model():
 
 @st.cache_resource
 def get_vector_store(embeddings_instance):
-    return init_knowledge_vector_store(
+    vector_store = init_knowledge_vector_store(
         source_folder, embeddings_instance)
+    return vector_store
 
 
 if 'first_run' not in st.session_state:
