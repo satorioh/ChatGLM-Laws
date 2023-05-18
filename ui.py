@@ -3,6 +3,11 @@ import sentence_transformers
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from utils import ProxyLLM, init_chain_proxy, init_knowledge_vector_store
 import streamlit as st
+from helper import get_abs_path
+
+source_folder = get_abs_path('content')
+models_folder = get_abs_path('models/chatglm-6b-int4')
+embeddings_folder = get_abs_path('embeddings/text2vec-large-chinese')
 
 MAX_CONTEXT = 720
 
@@ -20,12 +25,12 @@ st.set_page_config(
 @st.cache_resource
 def get_model():
     tokenizer = AutoTokenizer.from_pretrained(
-        "models/chatglm-6b-int4", trust_remote_code=True)
+        models_folder, trust_remote_code=True)
     model = AutoModel.from_pretrained(
-        "models/chatglm-6b-int4", trust_remote_code=True).half().cuda()
+        models_folder, trust_remote_code=True).half().cuda()
     model = model.eval()
     embeddings = HuggingFaceEmbeddings(
-        model_name="embeddings/text2vec-large-chinese",)
+        model_name=embeddings_folder,)
     embeddings.client = sentence_transformers.SentenceTransformer(
         embeddings.model_name, device="cuda")
     return tokenizer, model, embeddings
@@ -41,8 +46,7 @@ if 'ctx' not in st.session_state:
 tokenizer, model, embeddings = get_model()
 if 'vecdb' not in st.session_state:
     st.session_state.vecdb = init_knowledge_vector_store(
-        "content", embeddings)
-# vecdb = init_knowledge_vector_store("./content/", embeddings)
+        source_folder, embeddings)
 proxy_chain = init_chain_proxy(ProxyLLM(), st.session_state.vecdb, 5)
 
 

@@ -8,13 +8,6 @@ from typing import Optional, List
 import os
 
 
-def get_abs_path(path: str) -> str:
-    current_path = os.path.abspath(__file__)
-    dir_name, file_name = os.path.split(current_path)
-    parent_dir = os.path.dirname(dir_name)
-    return os.path.join(parent_dir, path)
-
-
 class ProxyLLM(LLM):
     @property
     def _llm_type(self) -> str:
@@ -27,7 +20,7 @@ class ProxyLLM(LLM):
 
 
 def init_knowledge_vector_store(path: str, embeddings):
-    fold_path = get_abs_path(path)
+    fold_path = path
     docs = []
     if not os.path.exists(fold_path):
         print(f"{fold_path} 路径不存在")
@@ -37,7 +30,8 @@ def init_knowledge_vector_store(path: str, embeddings):
             loader = DirectoryLoader(fold_path, glob='**/*.md')
             docs = loader.load()
             print(f"{fold_path} 已成功加载")
-        except:
+        except Exception as err:
+            print(err)
             print(f"{fold_path} 未能成功加载")
 
     text_splitter = CharacterTextSplitter(chunk_size=250, chunk_overlap=0)
