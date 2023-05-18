@@ -41,7 +41,7 @@ if 'ctx' not in st.session_state:
 tokenizer, model, embeddings = get_model()
 if 'vecdb' not in st.session_state:
     st.session_state.vecdb = init_knowledge_vector_store(
-        "./content/", embeddings)
+        "content", embeddings)
 # vecdb = init_knowledge_vector_store("./content/", embeddings)
 proxy_chain = init_chain_proxy(ProxyLLM(), st.session_state.vecdb, 5)
 

@@ -10,3 +10,4 @@ nltk
 beautifulsoup4
 langchain
 sentence_transformers
+faiss-gpu

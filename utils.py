@@ -1,11 +1,18 @@
 from langchain.llms.base import LLM
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
-from langchain.document_loaders import UnstructuredFileLoader
-from langchain.text_splitter import MarkdownTextSplitter
+from langchain.document_loaders import DirectoryLoader
+from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 from typing import Optional, List
 import os
+
+
+def get_abs_path(path: str) -> str:
+    current_path = os.path.abspath(__file__)
+    dir_name, file_name = os.path.split(current_path)
+    parent_dir = os.path.dirname(dir_name)
+    return os.path.join(parent_dir, path)
 
 
 class ProxyLLM(LLM):
@@ -19,33 +26,25 @@ class ProxyLLM(LLM):
         return prompt
 
 
-def init_knowledge_vector_store(filepath: str, embeddings):
-    md_splitter = MarkdownTextSplitter(chunk_size=256, chunk_overlap=0)
+def init_knowledge_vector_store(path: str, embeddings):
+    fold_path = get_abs_path(path)
     docs = []
-    if not os.path.exists(filepath):
-        print("路径不存在")
+    if not os.path.exists(fold_path):
+        print(f"{fold_path} 路径不存在")
         return None
-    elif os.path.isfile(filepath):
-        file = os.path.split(filepath)[-1]
+    elif os.path.isdir(fold_path):
         try:
-            loader = UnstructuredFileLoader(filepath, mode="elements")
+            loader = DirectoryLoader(fold_path, glob='**/*.md')
             docs = loader.load()
-            print(f"{file} 已成功加载")
+            print(f"{fold_path} 已成功加载")
         except:
-            print(f"{file} 未能成功加载")
-            return None
-    elif os.path.isdir(filepath):
-        for file in os.listdir(filepath):
-            fullfilepath = os.path.join(filepath, file)
-            try:
-                loader = UnstructuredFileLoader(fullfilepath, mode="elements")
-                docs += loader.load()
-                print(f"{file} 已成功加载")
-            except:
-                print(f"{file} 未能成功加载")
+            print(f"{fold_path} 未能成功加载")
 
-#    texts = md_splitter.split_documents(docs)
-    vector_store = FAISS.from_documents(docs, embeddings)
+    text_splitter = CharacterTextSplitter(chunk_size=250, chunk_overlap=0)
+    # 切割加载的 document
+    print("start split docs...")
+    split_docs = text_splitter.split_documents(docs)
+    vector_store = FAISS.from_documents(split_docs, embeddings)
     return vector_store
 
 
