@@ -5,7 +5,10 @@ from langchain.document_loaders import DirectoryLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 from typing import Optional, List
+from helper import get_abs_path
 import os
+
+index_folder = get_abs_path('faiss_index')
 
 
 class ProxyLLM(LLM):
@@ -20,26 +23,35 @@ class ProxyLLM(LLM):
 
 
 def init_knowledge_vector_store(path: str, embeddings):
-    fold_path = path
-    docs = []
-    if not os.path.exists(fold_path):
-        print(f"{fold_path} 路径不存在")
-        return None
-    elif os.path.isdir(fold_path):
+    if os.path.exists(index_folder):
         try:
-            loader = DirectoryLoader(fold_path, glob='**/*.md')
-            docs = loader.load()
-            print(f"{fold_path} 已成功加载")
+            print("start load faiss index")
+            vector_store = FAISS.load_local("faiss_index", embeddings)
+            print("load faiss index finished")
+            return vector_store
         except Exception as err:
-            print(err)
-            print(f"{fold_path} 未能成功加载")
-
-    text_splitter = CharacterTextSplitter(chunk_size=250, chunk_overlap=0)
-    # 切割加载的 document
-    print("start split docs...")
-    split_docs = text_splitter.split_documents(docs)
-    vector_store = FAISS.from_documents(split_docs, embeddings)
-    return vector_store
+            print(f"load faiss index error: {err}")
+    else:
+        fold_path = path
+        docs = []
+        if not os.path.exists(fold_path):
+            print(f"{fold_path} 路径不存在")
+            return None
+        elif os.path.isdir(fold_path):
+            try:
+                loader = DirectoryLoader(fold_path, glob='**/*.md')
+                docs = loader.load()
+                print(f"{fold_path} 已成功加载")
+            except Exception as err:
+                print(err)
+                print(f"{fold_path} 未能成功加载")
+        text_splitter = CharacterTextSplitter(chunk_size=250, chunk_overlap=0)
+        # 切割加载的 document
+        print("start split docs...")
+        split_docs = text_splitter.split_documents(docs)
+        print("split docs finished")
+        vector_store = FAISS.from_documents(split_docs, embeddings)
+        return vector_store
 
 
 def init_chain_proxy(llm_proxy: LLM, vector_store, top_k=5):

@@ -12,7 +12,7 @@ embeddings_folder = get_abs_path('embeddings/text2vec-large-chinese')
 MAX_CONTEXT = 720
 
 st.set_page_config(
-    page_title="Chat Page",
+    page_title="AI 法律小助手",
     page_icon=":robot:",
     menu_items={"about": '''
                 Author: FrostMiKu
@@ -30,10 +30,16 @@ def get_model():
         models_folder, trust_remote_code=True).half().cuda()
     model = model.eval()
     embeddings = HuggingFaceEmbeddings(
-        model_name=embeddings_folder,)
+        model_name=embeddings_folder, )
     embeddings.client = sentence_transformers.SentenceTransformer(
         embeddings.model_name, device="cuda")
     return tokenizer, model, embeddings
+
+
+@st.cache_resource
+def get_vector_store(embeddings_instance):
+    return init_knowledge_vector_store(
+        source_folder, embeddings_instance)
 
 
 if 'first_run' not in st.session_state:
@@ -45,15 +51,14 @@ if 'ctx' not in st.session_state:
 
 tokenizer, model, embeddings = get_model()
 if 'vecdb' not in st.session_state:
-    st.session_state.vecdb = init_knowledge_vector_store(
-        source_folder, embeddings)
+    st.session_state.vecdb = get_vector_store(embeddings)
 proxy_chain = init_chain_proxy(ProxyLLM(), st.session_state.vecdb, 5)
 
-
-st.title("# Hello, there👋")
+st.title("# AI 法律小助手👋")
 ctx_dom = st.empty()
 question_dom = st.markdown(
-    "> 为了能够顺利的运行在显存仅有 6GB 的 RTX 2060 Ti 上\\\n本模型被限制了上下文能力，当前最大 Token 长度：{}".format(MAX_CONTEXT))
+    "> 为了能够顺利的运行在显存仅有 6GB 的 RTX 2060 Ti 上\\\n本模型被限制了上下文能力，当前最大 Token 长度：{}".format(
+        MAX_CONTEXT))
 md_dom = st.empty()
 st.write("")
 
@@ -95,7 +100,7 @@ def predict(input, history=None):
 
 with st.form("form", True):
     # create a prompt text for the text generation
-    prompt_text = st.text_area(label=":thinking_face: 聊点什么？",
+    prompt_text = st.text_area(label=":thinking_face: 咨询点什么？",
                                height=100,
                                max_chars=MAX_CONTEXT,
                                placeholder="支持使用 Markdown 格式书写")
