@@ -15,7 +15,7 @@ st.set_page_config(
     page_title="AI 法律小助手",
     page_icon=":robot:",
     menu_items={"about": '''
-                Author: FrostMiKu
+                Author: FrostMiKu & Robin.Wang
 
                 Model: ChatGLM-6B-INT4
                 '''}
@@ -58,8 +58,8 @@ proxy_chain = init_chain_proxy(ProxyLLM(), st.session_state.vecdb, 5)
 st.title("# AI 法律小助手👋")
 ctx_dom = st.empty()
 question_dom = st.markdown(
-    "> 为了能够顺利的运行在显存仅有 6GB 的 RTX 2060 Ti 上\\\n本模型被限制了上下文能力，当前最大 Token 长度：{}".format(
-        MAX_CONTEXT))
+    ">  回答由 AI 检索法律文件后生成，不保证准确率，仅供参考学习！"
+)
 md_dom = st.empty()
 st.write("")
 
