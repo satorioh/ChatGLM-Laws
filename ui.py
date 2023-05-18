@@ -37,9 +37,9 @@ def get_model():
 
 
 @st.cache_resource
-def get_vector_store(embeddings_instance):
+def get_vector_store(_embeddings_instance):
     vector_store = init_knowledge_vector_store(
-        source_folder, embeddings_instance)
+        source_folder, _embeddings_instance)
     return vector_store
 
 
