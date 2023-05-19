@@ -1,3 +1,5 @@
+import os
+
 from transformers import AutoModel, AutoTokenizer
 import sentence_transformers
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
@@ -118,9 +120,11 @@ with st.form("form", True):
             ":face_with_cowboy_hat:\n\n{}\n\n---\n".format(prompt_text))
         q = proxy_chain(prompt_text)
         st.session_state.history.append((prompt_text, ''))
-        print(f"q--->>>:{q}")
-        source_titles = [x['metadata']['source'] for x in enumerate(q['source_documents'])]
-        print(source_titles)
+        print(f"提问--->>>:{q['result']}")
+        source_text = [f"""出处 [{inum + 1}] {os.path.split(doc.metadata['source'])[-1]}：\n\n{doc.page_content}\n\n"""
+                       for inum, doc in
+                       enumerate(q["source_documents"])]
+        print("\n\n" + "\n\n".join(source_text))
         st.session_state.ctx = predict(q['result'], st.session_state.ctx)
         if st.session_state.first_run:
             st.session_state.first_run = False
