@@ -1,5 +1,4 @@
 import os
-
 from transformers import AutoModel, AutoTokenizer
 import sentence_transformers
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
@@ -82,7 +81,7 @@ def check_ctx_len(history):
     return total <= (MAX_CONTEXT + 10)
 
 
-def predict(input, history=None):
+def predict(input, source_text, history=None):
     if history is None:
         history = []
 
@@ -93,6 +92,8 @@ def predict(input, history=None):
     for response, history in model.stream_chat(tokenizer, input, history, max_length=1024, top_p=0.8,
                                                temperature=0.9):
         md_dom.markdown(response)
+        expander = st.expander("查看出处")
+        expander.write(source_text)
 
     q, _ = st.session_state.history.pop()
     st.session_state.history.append((q, response))
@@ -120,12 +121,12 @@ with st.form("form", True):
             ":face_with_cowboy_hat:\n\n{}\n\n---\n".format(prompt_text))
         q = proxy_chain(prompt_text)
         st.session_state.history.append((prompt_text, ''))
-        print(f"提问--->>>:{q['result']}")
+        print(f"提问--->>>:{q['query']}")
         source_text = [f"""出处 [{inum + 1}] {os.path.split(doc.metadata['source'])[-1]}：\n\n{doc.page_content}\n\n"""
                        for inum, doc in
                        enumerate(q["source_documents"])]
         print("\n\n" + "\n\n".join(source_text))
-        st.session_state.ctx = predict(q['result'], st.session_state.ctx)
+        st.session_state.ctx = predict(q['result'], source_text, st.session_state.ctx)
         if st.session_state.first_run:
             st.session_state.first_run = False
             st.balloons()
