@@ -120,7 +120,7 @@ with st.form("form", True):
         q = proxy_chain(prompt_text)
         st.session_state.history.append((prompt_text, ''))
         print(f"q--->>>:{q}")
-        source_titles = [x['metadata']['source'] for x in q.source_documents]
+        source_titles = [x['metadata']['source'] for x in q['source_documents']]
         print(source_titles)
         st.session_state.ctx = predict(q.result, st.session_state.ctx)
         if st.session_state.first_run:
