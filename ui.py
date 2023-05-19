@@ -62,6 +62,7 @@ question_dom = st.markdown(
     ">  回答由 AI 检索法律文件后生成，不保证准确率，仅供参考学习！"
 )
 md_dom = st.empty()
+expander = st.expander("查看出处")
 st.write("")
 
 
@@ -92,9 +93,7 @@ def predict(input, source_text, history=None):
     for response, history in model.stream_chat(tokenizer, input, history, max_length=1024, top_p=0.8,
                                                temperature=0.9):
         md_dom.markdown(response)
-        expander = st.expander("查看出处")
-        expander.write(source_text)
-
+    expander.write(source_text)
     q, _ = st.session_state.history.pop()
     st.session_state.history.append((q, response))
     history.pop()
@@ -125,8 +124,8 @@ with st.form("form", True):
         source_text = [f"""出处 [{inum + 1}] {os.path.split(doc.metadata['source'])[-1]}：\n\n{doc.page_content}\n\n"""
                        for inum, doc in
                        enumerate(q["source_documents"])]
-        print("\n\n" + "\n\n".join(source_text))
-        st.session_state.ctx = predict(q['result'], source_text, st.session_state.ctx)
+        format_source_text = "\n\n" + "\n\n".join(source_text)
+        st.session_state.ctx = predict(q['result'], format_source_text, st.session_state.ctx)
         if st.session_state.first_run:
             st.session_state.first_run = False
             st.balloons()
