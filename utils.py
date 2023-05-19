@@ -1,5 +1,5 @@
 from langchain.llms.base import LLM
-from langchain.chains import RetrievalQA
+from langchain.chains import RetrievalQAWithSourcesChain
 from langchain.prompts import PromptTemplate
 from langchain.document_loaders import DirectoryLoader
 from langchain.text_splitter import CharacterTextSplitter
@@ -66,12 +66,11 @@ def init_chain_proxy(llm_proxy: LLM, vector_store, top_k=5):
         template=prompt_template,
         input_variables=["context", "question"]
     )
-    knowledge_chain = RetrievalQA.from_llm(
+    knowledge_chain = RetrievalQAWithSourcesChain.from_llm(
         llm=llm_proxy,
         retriever=vector_store.as_retriever(
             search_kwargs={"k": top_k}),
-        prompt=prompt,
-        return_source_documents=True
+        prompt=prompt
     )
     knowledge_chain.combine_documents_chain.document_prompt = PromptTemplate(
         input_variables=["page_content"], template="{page_content}"

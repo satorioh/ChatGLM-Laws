@@ -117,7 +117,7 @@ with st.form("form", True):
         display_ctx(st.session_state.history)
         question_dom.markdown(
             ":face_with_cowboy_hat:\n\n{}\n\n---\n".format(prompt_text))
-        q = proxy_chain.predict(prompt_text)
+        q = proxy_chain(prompt_text)
         st.session_state.history.append((prompt_text, ''))
         print(f"q--->>>:{q}")
         st.session_state.ctx = predict(q, st.session_state.ctx)
