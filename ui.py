@@ -118,7 +118,7 @@ with st.form("form", True):
             ":face_with_cowboy_hat:\n\n{}\n\n---\n".format(prompt_text))
         q = proxy_chain.run(prompt_text)
         st.session_state.history.append((prompt_text, ''))
-        print(q)
+        print(f"q--->>>:{q}")
         st.session_state.ctx = predict(q, st.session_state.ctx)
         if st.session_state.first_run:
             st.session_state.first_run = False

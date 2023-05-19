@@ -70,7 +70,8 @@ def init_chain_proxy(llm_proxy: LLM, vector_store, top_k=5):
         llm=llm_proxy,
         retriever=vector_store.as_retriever(
             search_kwargs={"k": top_k}),
-        prompt=prompt
+        prompt=prompt,
+        return_source_documents=True
     )
     knowledge_chain.combine_documents_chain.document_prompt = PromptTemplate(
         input_variables=["page_content"], template="{page_content}"
