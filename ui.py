@@ -50,6 +50,8 @@ if 'history' not in st.session_state:
     st.session_state.history = []
 if 'ctx' not in st.session_state:
     st.session_state.ctx = []
+if 'source' not in st.session_state:
+    st.session_state.source = []
 
 tokenizer, model, embeddings = get_model()
 if 'vecdb' not in st.session_state:
@@ -66,13 +68,14 @@ expander = st.expander("查看出处")
 st.write("")
 
 
-def display_ctx(history=None):
+def display_ctx(history=None, source=None):
     if history != None:
         text = ""
-        for q, a in history:
+        for index, (q, a) in enumerate(history):
             text += ":face_with_cowboy_hat:\n\n{}\n\n---\n{}\n\n---\n".format(
                 q, a)
             ctx_dom.markdown(text)
+            expander.write(source[index])
 
 
 def check_ctx_len(history):
@@ -93,11 +96,11 @@ def predict(input, source_text, history=None):
     for response, history in model.stream_chat(tokenizer, input, history, max_length=1024, top_p=0.8,
                                                temperature=0.9):
         md_dom.markdown(response)
-    expander.write(source_text)
     q, _ = st.session_state.history.pop()
     st.session_state.history.append((q, response))
     history.pop()
     history.append(st.session_state.history[-1])
+    st.session_state.source.append(source_text)
     return history
 
 
@@ -115,7 +118,7 @@ with st.form("form", True):
         btn_clear = st.form_submit_button("清除历史记录", use_container_width=True)
 
     if btn_send and prompt_text != "":
-        display_ctx(st.session_state.history)
+        display_ctx(st.session_state.history, st.session_state.source)
         question_dom.markdown(
             ":face_with_cowboy_hat:\n\n{}\n\n---\n".format(prompt_text))
         q = proxy_chain(prompt_text)
@@ -134,3 +137,4 @@ with st.form("form", True):
         ctx_dom.empty()
         st.session_state.history = []
         st.session_state.ctx = []
+        st.session_state.source = []
