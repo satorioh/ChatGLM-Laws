@@ -54,7 +54,6 @@ tokenizer, model, embeddings = get_model()
 if 'vecdb' not in st.session_state:
     st.session_state.vecdb = get_vector_store(embeddings)
 proxy_chain = init_chain_proxy(ProxyLLM(), st.session_state.vecdb, 5)
-print(f"proxy_chain--->>>:{proxy_chain}")
 
 st.title("# AI 法律小助手👋")
 ctx_dom = st.empty()
@@ -120,7 +119,7 @@ with st.form("form", True):
         q = proxy_chain(prompt_text)
         st.session_state.history.append((prompt_text, ''))
         print(f"q--->>>:{q}")
-        st.session_state.ctx = predict(q.result, st.session_state.ctx)
+        st.session_state.ctx = predict(q['result'], st.session_state.ctx)
         if st.session_state.first_run:
             st.session_state.first_run = False
             st.balloons()
