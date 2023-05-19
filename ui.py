@@ -64,7 +64,6 @@ question_dom = st.markdown(
     ">  回答由 AI 检索法律文件后生成，不保证准确率，仅供参考学习！"
 )
 md_dom = st.empty()
-expander = st.expander("查看出处")
 st.write("")
 
 
@@ -75,6 +74,7 @@ def display_ctx(history=None, source=None):
             text += ":face_with_cowboy_hat:\n\n{}\n\n---\n{}\n\n---\n".format(
                 q, a)
             ctx_dom.markdown(text)
+            expander = st.expander("查看出处")
             expander.write(source[index])
 
 
