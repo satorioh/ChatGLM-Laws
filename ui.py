@@ -90,7 +90,7 @@ def predict(input, history=None):
         print("Free Context!")
         history.pop(0)
 
-    for resp, history in model.stream_chat(tokenizer, input, history, max_length=1024, top_p=0.8,
+    for resp, history in model.stream_chat(tokenizer, input, history, max_length=4096, top_p=0.8,
                                            temperature=0.9):
         md_dom.markdown(resp)
         response = resp
