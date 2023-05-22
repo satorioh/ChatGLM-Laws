@@ -60,7 +60,7 @@ def init_chain_proxy(llm_proxy: LLM, vector_store, top_k=5):
 已知内容:
 {context}
 
-参考以上内容请回答如下问题，并在回答后注明相应的出处（用逗号分割）:
+参考以上内容请回答如下问题，并在回答后注明内容对应的出处的文件名（用逗号分割）:
 {question}"""
     prompt = PromptTemplate(
         template=prompt_template,
