@@ -82,6 +82,7 @@ def check_ctx_len(history):
 
 
 def predict(input, history=None):
+    response = ""
     if history is None:
         history = []
 
@@ -89,9 +90,10 @@ def predict(input, history=None):
         print("Free Context!")
         history.pop(0)
 
-    for response, history in model.stream_chat(tokenizer, input, history, max_length=1024, top_p=0.8,
-                                               temperature=0.9):
-        md_dom.markdown(response)
+    for resp, history in model.stream_chat(tokenizer, input, history, max_length=1024, top_p=0.8,
+                                           temperature=0.9):
+        md_dom.markdown(resp)
+        response = resp
     q, _ = st.session_state.history.pop()
     st.session_state.history.append((q, response))
     history.pop()
