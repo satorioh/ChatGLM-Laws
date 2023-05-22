@@ -128,7 +128,7 @@ with st.form("form", True):
         source = "\n\n"
         source += "".join(
             [
-                f"""> 出处 [{i + 1}]{os.path.split(doc.metadata['source'])[-1]}\n\n"""
+                f"""> <font size=2>*出处[{i + 1}]{os.path.split(doc.metadata['source'])[-1]}*</font>\n\n"""
                 for i, doc in
                 enumerate(q["source_documents"])])
         st.session_state.ctx = predict(q['result'], source, st.session_state.ctx)
