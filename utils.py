@@ -74,6 +74,6 @@ def init_chain_proxy(llm_proxy: LLM, vector_store, top_k=5):
         return_source_documents=True
     )
     knowledge_chain.combine_documents_chain.document_prompt = PromptTemplate(
-        input_variables=["page_content", "source"], template="{page_content}(出处：{source})"
+        input_variables=["page_content", "source"], template="{page_content}(出处：{os.path.split(source)[-1]})"
     )
     return knowledge_chain
