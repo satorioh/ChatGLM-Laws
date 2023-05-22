@@ -50,8 +50,6 @@ if 'history' not in st.session_state:
     st.session_state.history = []
 if 'ctx' not in st.session_state:
     st.session_state.ctx = []
-if 'source' not in st.session_state:
-    st.session_state.source = []
 
 tokenizer, model, embeddings = get_model()
 if 'vecdb' not in st.session_state:
@@ -67,15 +65,13 @@ md_dom = st.empty()
 st.write("")
 
 
-def display_ctx(history=None, source=None):
+def display_ctx(history=None):
     if history != None:
         text = ""
         for index, (q, a) in enumerate(history):
             text += ":face_with_cowboy_hat:\n\n{}\n\n---\n{}\n\n---\n".format(
                 q, a)
             ctx_dom.markdown(text)
-            expander = st.expander("查看出处")
-            expander.write(source[index])
 
 
 def check_ctx_len(history):
@@ -85,7 +81,7 @@ def check_ctx_len(history):
     return total <= (MAX_CONTEXT + 10)
 
 
-def predict(input, source_text, history=None):
+def predict(input, history=None):
     if history is None:
         history = []
 
@@ -100,7 +96,6 @@ def predict(input, source_text, history=None):
     st.session_state.history.append((q, response))
     history.pop()
     history.append(st.session_state.history[-1])
-    st.session_state.source.append(source_text)
     return history
 
 
@@ -118,17 +113,17 @@ with st.form("form", True):
         btn_clear = st.form_submit_button("清除历史记录", use_container_width=True)
 
     if btn_send and prompt_text != "":
-        display_ctx(st.session_state.history, st.session_state.source)
+        display_ctx(st.session_state.history)
         question_dom.markdown(
             ":face_with_cowboy_hat:\n\n{}\n\n---\n".format(prompt_text))
         q = proxy_chain(prompt_text)
         st.session_state.history.append((prompt_text, ''))
-        print(f"提问--->>>:{q['query']}")
-        source_text = [f"""出处 [{inum + 1}] {os.path.split(doc.metadata['source'])[-1]}：\n\n{doc.page_content}\n\n"""
-                       for inum, doc in
-                       enumerate(q["source_documents"])]
-        format_source_text = "\n\n" + "\n\n".join(source_text)
-        st.session_state.ctx = predict(q['result'], format_source_text, st.session_state.ctx)
+        print(f"返回--->>>:{q}")
+        # source_text = [f"""出处 [{inum + 1}] {os.path.split(doc.metadata['source'])[-1]}：\n\n{doc.page_content}\n\n"""
+        #                for inum, doc in
+        #                enumerate(q["source_documents"])]
+        # format_source_text = "\n\n" + "\n\n".join(source_text)
+        st.session_state.ctx = predict(q['result'], st.session_state.ctx)
         if st.session_state.first_run:
             st.session_state.first_run = False
             st.balloons()
@@ -137,4 +132,3 @@ with st.form("form", True):
         ctx_dom.empty()
         st.session_state.history = []
         st.session_state.ctx = []
-        st.session_state.source = []
