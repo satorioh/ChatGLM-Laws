@@ -81,7 +81,7 @@ def check_ctx_len(history):
     return total <= (MAX_CONTEXT + 10)
 
 
-def predict(input, history=None):
+def predict(input, source, history=None):
     response = ""
     if history is None:
         history = []
@@ -92,8 +92,8 @@ def predict(input, history=None):
 
     for resp, history in model.stream_chat(tokenizer, input, history, max_length=4096, top_p=0.8,
                                            temperature=0.9):
-        md_dom.markdown(resp)
-        response = resp
+        md_dom.markdown(resp + source)
+        response = resp + source
     q, _ = st.session_state.history.pop()
     st.session_state.history.append((q, response))
     history.pop()
@@ -125,7 +125,14 @@ with st.form("form", True):
         #                for inum, doc in
         #                enumerate(q["source_documents"])]
         # format_source_text = "\n\n" + "\n\n".join(source_text)
-        st.session_state.ctx = predict(q['result'], st.session_state.ctx)
+        source = "\n\n"
+        source += "".join(
+            [
+                f"""<details> <summary>出处 [{i + 1}] <a href="{doc.metadata["source"]}" target="_blank">{os.path.split(doc.metadata['source'])[-1]}</a> </summary>\n"""
+                f"""</details>"""
+                for i, doc in
+                enumerate(q["source_documents"])])
+        st.session_state.ctx = predict(q['result'], source, st.session_state.ctx)
         if st.session_state.first_run:
             st.session_state.first_run = False
             st.balloons()

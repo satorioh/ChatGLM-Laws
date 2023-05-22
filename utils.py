@@ -61,8 +61,7 @@ def init_chain_proxy(llm_proxy: LLM, vector_store, top_k=5):
 {context}
 
 参考以上内容请回答如下问题:
-{question}
-并在答案后注明已知内容的出处（仅显示出处的文件名，多个出处用逗号分割）"""
+{question}"""
     prompt = PromptTemplate(
         template=prompt_template,
         input_variables=["context", "question"]
@@ -75,6 +74,6 @@ def init_chain_proxy(llm_proxy: LLM, vector_store, top_k=5):
         return_source_documents=True
     )
     knowledge_chain.combine_documents_chain.document_prompt = PromptTemplate(
-        input_variables=["page_content", "source"], template="{page_content}(出处：{source})"
+        input_variables=["page_content"], template="{page_content}"
     )
     return knowledge_chain
